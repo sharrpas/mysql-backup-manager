@@ -1,0 +1,65 @@
+# Example Cron Job Configurations for MySQL Backup Script
+#
+# To edit your crontab: crontab -e
+# To list current cron jobs: crontab -l
+#
+# Format:
+# ┌───────────── minute (0 - 59)
+# │ ┌───────────── hour (0 - 23)
+# │ │ ┌───────────── day of month (1 - 31)
+# │ │ │ ┌───────────── month (1 - 12)
+# │ │ │ │ ┌───────────── day of week (0 - 6) (Sunday to Saturday)
+# │ │ │ │ │
+# │ │ │ │ │
+# * * * * * command to execute
+
+# Replace /path/to/db-backup-script with the actual path to your script directory
+
+# ============================================================================
+# Example 1: Daily backup at 2:00 AM
+# ============================================================================
+0 2 * * * cd /path/to/db-backup-script && ./backup.sh >> /var/log/mysql-backup.log 2>&1
+
+# ============================================================================
+# Example 2: Daily backup at midnight (12:00 AM)
+# ============================================================================
+0 0 * * * cd /path/to/db-backup-script && ./backup.sh >> /var/log/mysql-backup.log 2>&1
+
+# ============================================================================
+# Example 3: Every 6 hours
+# ============================================================================
+0 */6 * * * cd /path/to/db-backup-script && ./backup.sh >> /var/log/mysql-backup.log 2>&1
+
+# ============================================================================
+# Example 4: Every 12 hours (at midnight and noon)
+# ============================================================================
+0 0,12 * * * cd /path/to/db-backup-script && ./backup.sh >> /var/log/mysql-backup.log 2>&1
+
+# ============================================================================
+# Example 5: Weekly backup every Sunday at 3:00 AM
+# ============================================================================
+0 3 * * 0 cd /path/to/db-backup-script && ./backup.sh >> /var/log/mysql-backup.log 2>&1
+
+# ============================================================================
+# Example 6: Twice daily (6 AM and 6 PM)
+# ============================================================================
+0 6,18 * * * cd /path/to/db-backup-script && ./backup.sh >> /var/log/mysql-backup.log 2>&1
+
+# ============================================================================
+# Example 7: Business days only (Monday-Friday) at 1 AM
+# ============================================================================
+0 1 * * 1-5 cd /path/to/db-backup-script && ./backup.sh >> /var/log/mysql-backup.log 2>&1
+
+# ============================================================================
+# INSTRUCTIONS:
+# ============================================================================
+# 1. Copy one of the examples above
+# 2. Replace /path/to/db-backup-script with your actual script path
+# 3. Edit your crontab: crontab -e
+# 4. Paste the cron job line
+# 5. Save and exit
+#
+# To check if cron is running: sudo service cron status
+# To start cron: sudo service cron start
+# To view cron logs: grep CRON /var/log/syslog
+
