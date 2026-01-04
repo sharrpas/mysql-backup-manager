@@ -59,6 +59,23 @@ check_var "MYSQL_PASSWORD"
 check_var "DATABASES"
 check_var "BACKUP_DIR"
 check_var "BACKUP_RETENTION_DAYS"
+
+# Check if BACKUP_DIR is problematic
+if [[ "$BACKUP_DIR" == /* ]]; then
+    # It's an absolute path
+    REAL_BACKUP_DIR=$(cd "$BACKUP_DIR" 2>/dev/null && pwd || echo "$BACKUP_DIR")
+    REAL_SCRIPT_DIR=$(cd "$SCRIPT_DIR" && pwd)
+
+    if [[ "$REAL_BACKUP_DIR" != "$REAL_SCRIPT_DIR"* ]]; then
+        echo -e "${RED}✗ WARNING: BACKUP_DIR ($BACKUP_DIR) is outside the repository${NC}"
+        echo -e "${YELLOW}  This will prevent git commits from working.${NC}"
+        echo -e "${YELLOW}  Please set BACKUP_DIR to a relative path like: ./backups${NC}"
+        ((errors++))
+    fi
+else
+    echo -e "${GREEN}✓ BACKUP_DIR is a relative path (recommended)${NC}"
+fi
+
 check_var "GITHUB_REPO_URL"
 check_var "GITHUB_BRANCH"
 check_var "GIT_USER_NAME"

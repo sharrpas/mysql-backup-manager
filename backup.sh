@@ -40,6 +40,12 @@ for var in "${required_vars[@]}"; do
     fi
 done
 
+# Ensure backup directory is absolute or relative to script directory
+if [[ "$BACKUP_DIR" != /* ]]; then
+    # If it's a relative path, make it relative to the script directory
+    BACKUP_DIR="$SCRIPT_DIR/$BACKUP_DIR"
+fi
+
 # Create backup directory if it doesn't exist
 mkdir -p "$BACKUP_DIR"
 
@@ -115,6 +121,16 @@ else
     git config user.email "$GIT_USER_EMAIL"
 fi
 
+# Check if backup directory is inside the repository
+REAL_BACKUP_DIR=$(cd "$BACKUP_DIR" && pwd)
+REAL_SCRIPT_DIR=$(cd "$SCRIPT_DIR" && pwd)
+
+if [[ "$REAL_BACKUP_DIR" != "$REAL_SCRIPT_DIR"* ]]; then
+    echo -e "${RED}Error: BACKUP_DIR ($REAL_BACKUP_DIR) is outside the git repository ($REAL_SCRIPT_DIR)${NC}"
+    echo -e "${YELLOW}Please set BACKUP_DIR to a relative path (e.g., ./backups) in your .env file${NC}"
+    exit 1
+fi
+
 # Configure GitHub token authentication if provided
 if [ ! -z "$GITHUB_TOKEN" ]; then
     # Extract repo URL without protocol
@@ -123,8 +139,11 @@ if [ ! -z "$GITHUB_TOKEN" ]; then
     git remote set-url origin "https://${GITHUB_TOKEN}@${REPO_URL_NO_PROTOCOL}"
 fi
 
+# Get relative path from script dir to backup dir
+BACKUP_RELATIVE_PATH=$(realpath --relative-to="$SCRIPT_DIR" "$BACKUP_DIR" 2>/dev/null || python3 -c "import os.path; print(os.path.relpath('$BACKUP_DIR', '$SCRIPT_DIR'))" 2>/dev/null || echo "backups")
+
 # Add backups to git
-git add "$BACKUP_DIR"
+git add "$BACKUP_RELATIVE_PATH"
 
 # Check if there are changes to commit
 if git diff --staged --quiet; then

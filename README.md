@@ -163,6 +163,23 @@ mysql -u username -p database_name < backups/2026-01-01/database1_20260101_02000
 
 ## Troubleshooting
 
+### Backup Directory Outside Repository Error
+
+**Error message:**
+```
+fatal: /home/backups: '/home/backups' is outside repository at '/home/backups/mysql-backup-manager'
+```
+
+**Cause:** The `BACKUP_DIR` is set to an absolute path that's outside the git repository.
+
+**Solution:** 
+1. Update your `.env` file to use a relative path:
+```bash
+BACKUP_DIR=./backups
+```
+2. The script will now automatically create the backups directory inside the repository.
+3. If you must use an absolute path, ensure it's inside the repository directory.
+
 ### Permission Denied
 
 Make sure the script is executable:
